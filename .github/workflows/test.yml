@@ -1,0 +1,250 @@
+# FIRE 컨트랙트 CI
+#
+# 잡 구성과 필수(required) 여부 (브랜치 보호 규칙에서 아래 세 잡을 필수 검사로 지정하십시오)
+#   forge     [필수] fmt 검사 · 빌드(경고·린트 경고를 오류로 처리, 크기 표) · 테스트(ci 프로필: 퍼즈 10,000회, 불변식 1,000×128).
+#                    RPC를 쓰지 않으므로 포크 테스트(현재 41건)는 건너뜀(skip). 포크 테스트는 아래 fork 잡이 실행함.
+#   fork      [필수] 공개 RPC(Base 메인넷·Base Sepolia)로 전체 테스트 실행. 건너뛴 테스트가 하나라도 있으면 실패.
+#   airdrop   [필수] airdrop/ Node 도구: npm ci → 레지스트리 서명 검증 → npm test.
+#   coverage  [참고용, 필수 아님] forge coverage. 최적화를 끈 별도 빌드라 정확성 판정 기준이 아니며 RPC에도 의존함.
+#
+# fork 잡을 필수로 두는 이유: 포크 테스트는 런칭 스크립트(CreatePool·PostDeployCheck)와 FireBatchSender를 실제 Base의
+#   Uniswap V3·WETH·Safe·UNCX 락커·스마트 지갑 코드에 대해 검증하는 유일한 자동 검사임(7억 FIRE + 시딩 ETH가 지나가는 경로).
+#   포크 블록이 고정되어 있고 공개 RPC가 과거 상태를 제공하므로(블록 1,000,000 상태 조회 확인) 결과가 결정적이며,
+#   일시적인 RPC 오류는 최대 3회 시도(30초·60초 대기)와 RPC 응답 캐시(~/.foundry/cache)로 흡수함.
+#   공개 RPC 장애가 길게 이어지면 이 잡만 다시 실행(Re-run failed jobs)하면 됨.
+#
+# 공급망: 모든 액션은 전체 커밋 SHA로 고정(git ls-remote로 태그 → 커밋 확인, 주석은 해당 태그).
+#   Foundry는 v1.8.5로 고정하고 설치 직후 커밋 SHA까지 확인함.
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # 매주 월요일 03:17 UTC: 공개 RPC가 고정 포크 블록을 계속 제공하는지 확인하고 RPC 캐시를 유지(7일 미사용 시 삭제됨)
+    - cron: "17 3 * * 1"
+
+# 기본 권한 없음. 각 잡이 필요한 최소 권한(contents: read)만 선언함.
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # PR은 새 커밋이 오면 이전 실행을 취소, 기본 브랜치·예약 실행은 끝까지 실행
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  forge:
+    name: forge (fmt, build, test)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      FOUNDRY_PROFILE: ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Check pinned dependencies
+        # 서브모듈(gitlink) 커밋이 foundry.lock과 같은지 확인 (forge-std, OpenZeppelin v5.7.0)
+        run: |
+          set -euo pipefail
+          for dep in lib/forge-std lib/openzeppelin-contracts; do
+            want=$(jq -r --arg d "$dep" '.[$d] | .rev // .tag.rev' foundry.lock)
+            have=$(git -C "$dep" rev-parse HEAD)
+            echo "$dep: lock=$want checkout=$have"
+            if [ "$want" != "$have" ]; then
+              echo "::error::$dep 커밋이 foundry.lock과 다릅니다 (lock=$want, checkout=$have)"
+              exit 1
+            fi
+          done
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1.9.1
+        with:
+          version: v1.8.5
+          cache: false
+
+      - name: Check Foundry version
+        # v1.8.5 = 커밋 51a52c59… (git ls-remote로 태그 확인). 출력을 변수에 담아 비교(파이프 중단에 따른 오탐 방지)
+        run: |
+          set -euo pipefail
+          v=$(forge --version)
+          echo "$v"
+          grep -Fqx "forge Version: 1.8.5" <<<"$v"
+          grep -Fqx "Commit SHA: 51a52c59cffd940f76eddd0b4bb1791aa4b5ac7f" <<<"$v"
+
+      - name: forge fmt --check
+        run: forge fmt --check
+
+      - name: forge build --sizes --deny warnings
+        # --deny warnings: 컴파일러 경고와 forge lint 경고(빌드 후 린트 단계)를 모두 오류로 처리
+        run: forge build --sizes --deny warnings
+
+      - name: forge test (profile ci)
+        run: forge test -vvv
+
+  fork:
+    name: fork tests (Base public RPC)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      BASE_RPC_URL: https://mainnet.base.org
+      BASE_SEPOLIA_RPC_URL: https://sepolia.base.org
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Install Foundry (RPC cache)
+        uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1.9.1
+        with:
+          version: v1.8.5
+          # 고정 포크 블록의 RPC 응답을 저장해 공개 RPC 호출을 줄임. coverage 잡과 rpc- 접두사로 공유.
+          cache: true
+          cache-key: rpc-fork-${{ github.sha }}
+          cache-restore-keys: |
+            rpc-
+
+      - name: Check Foundry version
+        # v1.8.5 = 커밋 51a52c59… (git ls-remote로 태그 확인). 출력을 변수에 담아 비교(파이프 중단에 따른 오탐 방지)
+        run: |
+          set -euo pipefail
+          v=$(forge --version)
+          echo "$v"
+          grep -Fqx "forge Version: 1.8.5" <<<"$v"
+          grep -Fqx "Commit SHA: 51a52c59cffd940f76eddd0b4bb1791aa4b5ac7f" <<<"$v"
+
+      - name: forge test with fork RPCs (up to 3 attempts)
+        # 전체 테스트를 실행해 포크 테스트 이름·위치가 바뀌어도 빠짐없이 돌게 하고, 마지막 요약에서 skip이 0인지 확인함.
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/forge-test-fork.log"
+          for attempt in 1 2 3; do
+            if forge test -vvv 2>&1 | tee "$log"; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::포크 테스트가 3회 모두 실패했습니다."
+              exit 1
+            fi
+            echo "::warning::포크 테스트 실패 (시도 $attempt/3). $((attempt * 30))초 후 다시 시도합니다."
+            sleep $((attempt * 30))
+          done
+          summary=$(grep -E '^Ran [0-9]+ test suites' "$log" | tail -n 1 || true)
+          echo "summary: $summary"
+          if ! grep -Eq ' [1-9][0-9]* tests passed, 0 failed, 0 skipped ' <<<"$summary"; then
+            echo "::error::건너뛴 테스트가 있거나 요약을 찾지 못했습니다 (BASE_RPC_URL·BASE_SEPOLIA_RPC_URL 확인): $summary"
+            exit 1
+          fi
+
+  coverage:
+    name: coverage (informational)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      # 포크 테스트까지 포함해야 CreatePool·PostDeployCheck 커버리지가 의미 있음
+      BASE_RPC_URL: https://mainnet.base.org
+      BASE_SEPOLIA_RPC_URL: https://sepolia.base.org
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Install Foundry (RPC cache)
+        uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1.9.1
+        with:
+          version: v1.8.5
+          cache: true
+          cache-key: rpc-coverage-${{ github.sha }}
+          cache-restore-keys: |
+            rpc-
+
+      - name: Check Foundry version
+        # v1.8.5 = 커밋 51a52c59… (git ls-remote로 태그 확인). 출력을 변수에 담아 비교(파이프 중단에 따른 오탐 방지)
+        run: |
+          set -euo pipefail
+          v=$(forge --version)
+          echo "$v"
+          grep -Fqx "forge Version: 1.8.5" <<<"$v"
+          grep -Fqx "Commit SHA: 51a52c59cffd940f76eddd0b4bb1791aa4b5ac7f" <<<"$v"
+
+      - name: forge coverage (up to 3 attempts)
+        # forge coverage 기본 빌드(레거시 코드 생성기, 최적화 끔)를 사용: 배포 빌드와 같은 코드 생성기라서.
+        #   --ir-minimum(viaIR)도 동작함(디스패처 셀렉터 검사가 레거시·viaIR 바이트코드를 모두 해석).
+        # 바이트코드 고정 테스트 2건(test_Bytecode_MatchesPinnedBuild)은 최적화 설정이 달라 coverage 문맥에서 스스로 건너뜀.
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/forge-coverage.log"
+          for attempt in 1 2 3; do
+            if forge coverage --report summary --report lcov --no-match-coverage '^(lib|test)/' 2>&1 | tee "$log"; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::forge coverage가 3회 모두 실패했습니다."
+              exit 1
+            fi
+            echo "::warning::forge coverage 실패 (시도 $attempt/3). $((attempt * 30))초 후 다시 시도합니다."
+            sleep $((attempt * 30))
+          done
+          {
+            echo "### Coverage (src/, script/; fork tests included)"
+            echo
+            awk '/^\| File /{f=1; print; print "| --- | ---: | ---: | ---: | ---: |"; next} f && /^\| /{print}' "$log"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload lcov.info
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lcov
+          path: lcov.info
+          if-no-files-found: error
+          retention-days: 14
+
+  airdrop:
+    name: airdrop (Node 24)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: airdrop
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # 서브모듈 불필요: 도구 테스트는 airdrop/와 저장소의 script/DeployAirdrop.s.sol·test/fixtures/·.gitignore만 읽음
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: airdrop/package-lock.json
+
+      - name: npm ci
+        # airdrop/.npmrc: ignore-scripts=true (설치 스크립트 실행 안 함), engine-strict=true
+        run: npm ci
+
+      - name: npm audit signatures
+        # 설치된 패키지의 npm 레지스트리 서명·출처 증명 검증 (공급망 점검)
+        run: npm audit signatures
+
+      - name: npm test
+        run: npm test

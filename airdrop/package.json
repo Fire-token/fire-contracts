@@ -1,0 +1,22 @@
+{
+  "name": "fire-airdrop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FIRE 회차별 Merkle 에어드롭 목록 생성·검증 도구 (OpenZeppelin StandardMerkleTree)",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "generate": "node generate.mjs",
+    "verify": "node verify.mjs",
+    "fixture": "node fixture.mjs",
+    "fixture:check": "node fixture.mjs --check",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20.10"
+  },
+  "dependencies": {
+    "@openzeppelin/merkle-tree": "1.0.8",
+    "viem": "2.56.8"
+  }
+}
