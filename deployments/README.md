@@ -1,5 +1,7 @@
 # deployments/ — FIRE 공개 배포 기록
 
+**[English](README.en.md)** | **[한국어](README.md)**
+
 이 폴더의 `<chainId>.json` 파일은 FIRE 런칭의 **공개 기록**입니다. 컨트랙트 주소, 지갑 주소, 베스팅 일정,
 분배 수량, Uniswap V3 풀·LP 포지션·락업 정보를 담으며, 웹사이트·GitHub README·Litepaper에 그대로 링크할 수 있도록
 만들어졌습니다 (가이드 5장 5항, 7.2절 "지갑 공개"). 개인 키나 비밀 값은 절대 들어가지 않습니다.

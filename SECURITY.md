@@ -1,5 +1,7 @@
 # 보안 정책 (FIRE 컨트랙트)
 
+**[English](SECURITY.en.md)** | **[한국어](SECURITY.md)**
+
 이 문서는 FIRE 컨트랙트의 신뢰 모델, 테스트가 실제로 증명하는 범위, 남은 위험과 운영 전제, 정적 분석 결과,
 취약점 제보 방법을 정리합니다. 기준 시점: 2026-10-08 (OpenZeppelin Contracts v5.7.0, solc 0.8.30, Foundry v1.8.5).
 

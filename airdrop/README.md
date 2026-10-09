@@ -1,5 +1,7 @@
 # FIRE 에어드롭 Merkle 도구 (`airdrop/`)
 
+**[English](README.en.md)** | **[한국어](README.md)**
+
 FIRE 에어드롭을 **회차별 Merkle 클레임**으로 지급하기 위한 목록 생성·검증 도구와 운영 절차입니다.
 온체인 부분은 [`src/FireMerkleDistributor.sol`](../src/FireMerkleDistributor.sol)과 배포 스크립트
 [`script/DeployAirdrop.s.sol`](../script/DeployAirdrop.s.sol)입니다. (가이드 2.2·2.4절, 4장 Step 8)

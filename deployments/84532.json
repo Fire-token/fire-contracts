@@ -1,0 +1,65 @@
+{
+  "allocation": {
+    "airdrop": "50000000000000000000000000",
+    "lp": "700000000000000000000000000",
+    "totalSupply": "1000000000000000000000000000",
+    "treasury": "50000000000000000000000000",
+    "vesting": "200000000000000000000000000"
+  },
+  "blockNumber": 47852214,
+  "blockTimestamp": 1791472727,
+  "chainId": 84532,
+  "contracts": {
+    "FireToken": "0xCB357A1A388a71cF4d54D3649D02bd5182c2b2E0",
+    "FireVesting": "0xD579bF53E084eF8f6C130F6D35844d490bF18290"
+  },
+  "deployer": "0xB0015faBc8456a39c0A114A5a6e0363C9589B66f",
+  "deployerNonce": 0,
+  "network": "base-sepolia",
+  "status": "confirmed",
+  "vesting": {
+    "cliffSeconds": 15552000,
+    "end": 1853680757,
+    "linearSeconds": 46656000,
+    "start": 1807024757
+  },
+  "wallets": {
+    "airdropWallet": "0xA6b3a10C51E57bcda89B89B6E7aed73e646Fa449",
+    "beneficiary": "0x5eB6293A028e8958fEE345ff973CD6DCC1555711",
+    "treasurySafe": "0x6Ce0E2a8b9472869457f6Dcc266e32AB34233e69"
+  },
+  "deployedAt": 1791472757,
+  "pool": {
+    "address": "0x8F6a19ea9DaDEcf2Bb7d1d7FEC59d7b19f0Ad2dB",
+    "approval": "permit",
+    "factory": "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",
+    "fee": 10000,
+    "lpFireAmount": "700000000000000000000000000",
+    "positionManager": "0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2",
+    "positionOwner": "0xB0015faBc8456a39c0A114A5a6e0363C9589B66f",
+    "seedEth": "3000000000000000000",
+    "simulatedBlockNumber": 47852215,
+    "slippageBps": 50,
+    "status": "confirmed",
+    "targetSqrtPriceX96": "1210230172979597097089260854307451",
+    "tickLower": -887200,
+    "tickSpacing": 200,
+    "tickUpper": 887200,
+    "token0": "0x4200000000000000000000000000000000000006",
+    "token1": "0xCB357A1A388a71cF4d54D3649D02bd5182c2b2E0",
+    "weth": "0x4200000000000000000000000000000000000006",
+    "tokenId": 82764,
+    "liquidity": "45825756949558400065880",
+    "ownerAtConfirm": "0xB0015faBc8456a39c0A114A5a6e0363C9589B66f",
+    "minLiquidity": "45596628164810608050275",
+    "mintTx": "0x1856e9a9443da80a074ad5a74d8751ed1731040411385e36143ee208fff5b999",
+    "mintBlock": 47852216,
+    "mintLiquidity": "45825756949558400065880",
+    "fireDeposited": "699999999999999999999990298",
+    "ethDeposited": "2999999999999997507",
+    "ethRefunded": "2493",
+    "initialSqrtPriceX96": "1210230172979597097089260854307451",
+    "initialTick": 192689,
+    "confirmedAtBlock": 47852216
+  }
+}
