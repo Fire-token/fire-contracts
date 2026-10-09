@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="tokenBg" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#1c1316"/>
+      <stop offset="60%" stop-color="#0e0f14"/>
+      <stop offset="100%" stop-color="#060709"/>
+    </radialGradient>
+
+    <!-- Outer Glow -->
+    <radialGradient id="ambientGlow" cx="50%" cy="55%" r="45%">
+      <stop offset="0%" stop-color="#ff4400" stop-opacity="0.35"/>
+      <stop offset="50%" stop-color="#ff2200" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ff0000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Rim Gradient -->
+    <linearGradient id="tokenRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff7700" stop-opacity="0.8"/>
+      <stop offset="40%" stop-color="#ff3700" stop-opacity="0.3"/>
+      <stop offset="70%" stop-color="#2a120b" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ff9900" stop-opacity="0.7"/>
+    </linearGradient>
+
+    <!-- Main Outer Flame Gradient -->
+    <linearGradient id="flameOuter" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#d61a00"/>
+      <stop offset="35%" stop-color="#ff4400"/>
+      <stop offset="70%" stop-color="#ff7b00"/>
+      <stop offset="100%" stop-color="#ffbe0b"/>
+    </linearGradient>
+
+    <!-- Mid Flame Gradient -->
+    <linearGradient id="flameMid" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#ff3300"/>
+      <stop offset="45%" stop-color="#ff8800"/>
+      <stop offset="85%" stop-color="#ffc720"/>
+      <stop offset="100%" stop-color="#ffe478"/>
+    </linearGradient>
+
+    <!-- Core White-Hot Flame Gradient -->
+    <linearGradient id="flameCore" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#ff9500"/>
+      <stop offset="40%" stop-color="#ffda44"/>
+      <stop offset="80%" stop-color="#fff8d6"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+
+    <!-- Drop Shadow / Glow Filter -->
+    <filter id="flameGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Token Coin Base -->
+  <circle cx="256" cy="256" r="248" fill="url(#tokenBg)"/>
+  
+  <!-- Ambient Inner Fire Reflection -->
+  <circle cx="256" cy="256" r="236" fill="url(#ambientGlow)"/>
+
+  <!-- Metallic / Glowing Cyber Rim -->
+  <circle cx="256" cy="256" r="246" fill="none" stroke="url(#tokenRim)" stroke-width="4"/>
+  <circle cx="256" cy="256" r="238" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.08"/>
+
+  <!-- Flame Group with Glow -->
+  <g filter="url(#flameGlow)">
+    <!-- Layer 1: Outer Silhouette Flame -->
+    <path d="M 256,64 
+             C 278,136 332,188 356,252 
+             C 378,312 360,378 316,418 
+             C 276,454 212,456 172,422 
+             C 134,390 124,332 142,278 
+             C 152,246 174,222 186,188 
+             C 192,216 208,236 218,244 
+             C 214,196 230,126 256,64 Z" 
+          fill="url(#flameOuter)"/>
+
+    <!-- Layer 2: Secondary Right Dancing Flame -->
+    <path d="M 268,142 
+             C 294,202 342,248 344,312 
+             C 346,364 308,416 260,428 
+             C 288,396 302,342 284,296 
+             C 274,272 254,250 252,220 
+             C 256,200 262,172 268,142 Z" 
+          fill="url(#flameMid)" 
+          opacity="0.95"/>
+
+    <!-- Layer 3: Left Accent Flame -->
+    <path d="M 218,212 
+             C 202,242 168,272 164,324 
+             C 160,370 196,416 242,428 
+             C 198,412 178,358 190,314 
+             C 198,284 216,260 218,212 Z" 
+          fill="url(#flameMid)" 
+          opacity="0.9"/>
+
+    <!-- Layer 4: Intense Mid-Core Flame -->
+    <path d="M 256,192 
+             C 276,242 308,284 306,340 
+             C 304,390 268,424 232,426 
+             C 264,404 274,354 256,312 
+             C 246,288 234,268 238,238 
+             C 242,222 250,206 256,192 Z" 
+          fill="url(#flameMid)"/>
+
+    <!-- Layer 5: White-Hot Core Flame -->
+    <path d="M 254,260 
+             C 268,294 282,326 278,364 
+             C 274,398 250,422 226,424 
+             C 246,408 256,374 246,344 
+             C 238,322 232,306 238,286 
+             C 244,272 250,264 254,260 Z" 
+          fill="url(#flameCore)"/>
+
+    <!-- Layer 6: Radiant Center Ember Core -->
+    <ellipse cx="252" cy="380" rx="16" ry="24" fill="#ffffff" opacity="0.85" filter="url(#flameGlow)"/>
+  </g>
+</svg>

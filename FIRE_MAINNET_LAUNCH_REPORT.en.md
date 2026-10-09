@@ -194,3 +194,4 @@ FIRE is built with transparent smart contract invariants to eliminate rug-pull v
    0xCB357A1A388a71cF4d54D3649D02bd5182c2b2E0
    ```
 4. Token Symbol (`FIRE`) and Decimals (`18`) will populate automatically. Click **Next** $\rightarrow$ **Import**.
+

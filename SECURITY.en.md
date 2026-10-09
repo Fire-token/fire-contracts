@@ -82,3 +82,4 @@ If you discover a potential vulnerability in the FIRE smart contracts or deploym
 
 - **Security Inquiries / Reports:** Open a private security advisory on GitHub: [https://github.com/Fire-token/fire-contracts/security/advisories](https://github.com/Fire-token/fire-contracts/security/advisories)
 - **Guidelines:** Provide clear reproduction steps (PoC in Foundry). Allow reasonable time to evaluate before public disclosure.
+

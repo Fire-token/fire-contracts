@@ -62,3 +62,4 @@ FIRE launch control proof | role=<ROLE> | address=<EIP-55_ADDRESS> | chainId=<CH
 ```
 
 For the 2-of-3 Base Safe Treasury (`0x2fb79a099B7579F486F073D78e75fbCD6Ce76Ef6`), threshold signatures from Safe signers were verified, and active modules were strictly verified to be zero (`0 modules`) to eliminate backdoor vectors.
+

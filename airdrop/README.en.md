@@ -93,3 +93,4 @@ CONFIRM_MAINNET=I_UNDERSTAND forge script script/DeployAirdrop.s.sol:DeployAirdr
   --account airdrop-wallet \
   --broadcast --slow
 ```
+
