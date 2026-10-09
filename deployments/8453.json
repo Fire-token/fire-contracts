@@ -1,0 +1,32 @@
+{
+  "allocation": {
+    "airdrop": "50000000000000000000000000",
+    "lp": "700000000000000000000000000",
+    "totalSupply": "1000000000000000000000000000",
+    "treasury": "50000000000000000000000000",
+    "vesting": "200000000000000000000000000"
+  },
+  "blockNumber": 52378678,
+  "blockTimestamp": 1791546703,
+  "chainId": 8453,
+  "contracts": {
+    "FireToken": "0xCB357A1A388a71cF4d54D3649D02bd5182c2b2E0",
+    "FireVesting": "0xD579bF53E084eF8f6C130F6D35844d490bF18290"
+  },
+  "deployer": "0xB0015faBc8456a39c0A114A5a6e0363C9589B66f",
+  "deployerNonce": 0,
+  "network": "base",
+  "status": "confirmed",
+  "vesting": {
+    "cliffSeconds": 15552000,
+    "end": 1853754717,
+    "linearSeconds": 46656000,
+    "start": 1807098717
+  },
+  "wallets": {
+    "airdropWallet": "0xA6b3a10C51E57bcda89B89B6E7aed73e646Fa449",
+    "beneficiary": "0x5eB6293A028e8958fEE345ff973CD6DCC1555711",
+    "treasurySafe": "0x2fb79a099B7579F486F073D78e75fbCD6Ce76Ef6"
+  },
+  "deployedAt": 1791546717
+}
